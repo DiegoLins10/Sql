@@ -1,0 +1,45 @@
+DECLARE @N INT,
+        @BatchSize INT, 
+		@NEnum int,
+		@nome varchar(100);
+
+
+-- populando tabela dos enums
+Declare @enum  Table (id int identity, Nome varchar(100), TipoCategoriaBeneficio int) -- declara as colunas
+	insert into @enum (Nome, TipoCategoriaBeneficio) -- seleciona em qual coluna vai adicionar
+	values ('Academia',2),('Seguro de Vida',3),('Seguro de Vida Complementar',3),('Seguro Acidente Pessoal',3),
+('Seguro Saúde',5),('Seguro Odontologico',6),('Fretado',8),
+('Estacionamento',8),('Vale Transporte',9),('Previdência Privada',11),
+('Previdência Privada - Voluntária',11),('Previdência Filho',12),('Resgate de Previdência',13),('Farmácia',14),('Campanha de Vacinação',15),
+('Ticket de Dúvidas',16),('CrecheBaba',17),('SegundaViaCartao',18),(' Vale Alimentação',19),('Vale Refeição',20),('Flowing',25),
+('Clube de Vantagens',29),('SOS International',31),('Multibeneficios',32),('MultibeneficiosPresentePerfeito',33)
+ 
+
+
+select * from @enum order by TipoCategoriaBeneficio   
+SET @BatchSize = @@ROWCOUNT;
+select @batchsize as teste
+
+
+set @N = 1
+WHILE(@N<=@BatchSize)
+BEGIN
+set @nome = (select Nome from @enum where id = @N)	
+set @NEnum = (select TipoCategoriaBeneficio from @enum where id = @N)	
+ 
+IF EXISTS (SELECT * FROM cadastro.CategoriaBeneficio WHERE nome = @nome)
+BEGIN
+    IF(SELECT TipoCategoriaBeneficio FROM cadastro.CategoriaBeneficio where LOWER(LTRIM(RTRIM(nome))) = LOWER(LTRIM(RTRIM(@nome)))) != @NEnum
+	BEGIN
+	 update cadastro.CategoriaBeneficio set TipoCategoriaBeneficio = @NEnum where LOWER(LTRIM(RTRIM(nome))) = LOWER(LTRIM(RTRIM(@nome)))
+	END
+END
+ELSE
+BEGIN
+  declare @identity int
+  set @identity = (select top 1  IdCategoriaBeneficio + 1 from cadastro.CategoriaBeneficio order by  1 desc);
+  insert into cadastro.CategoriaBeneficio values (@identity, 2, LOWER(LTRIM(RTRIM(@nome))), @NEnum, null, NEWID())
+
+END
+set @N = @N + 1
+END;
