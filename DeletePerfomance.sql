@@ -1,4 +1,4 @@
-USE BD
+USE [Beneflex-Sanofi]
 
 
 BEGIN TRAN
@@ -67,29 +67,42 @@ WHERE g.Nome like '%Local%' AND IdVinculoEmpregaticio = 3)
 
 		WHILE (@count <= @countTemporaryTable)
 		BEGIN
+
+		DECLARE @SepateCoberturaTentoTen TABLE (idCobertura int primary key);
+
+		insert @SepateCoberturaTentoTen
+		select top 10 idCobertura from @IdCoberturas order by idCobertura
+
+		select * from @SepateCoberturaTentoTen
+
 		print CONVERT(varchar(20), @count)  + ' de ' + CONVERT(varchar(20), @countTemporaryTable)
 
 		delete from requisicao.CoberturaValor 
-		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @IdCoberturas order by idCobertura)
+		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
 		
 		delete from layout.ControleSaida 
-		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @IdCoberturas order by idCobertura)
+		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
 
 		delete from requisicao.LinhaDoTempo 
-		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @IdCoberturas order by idCobertura)
+		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
 		
 		delete from requisicao.Movimentacao 
-		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @IdCoberturas order by idCobertura)
+		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
 		
 		DELETE from requisicao.CoberturaDependente 
-		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @IdCoberturas order by idCobertura)
+		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
 
 		DELETE from requisicao.Cobertura 
-		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @IdCoberturas order by idCobertura)
+		WHERE IdCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
 		
+		delete from @IdCoberturas
+		where idCobertura in (SELECT TOP 10 IdCobertura	 from @SepateCoberturaTentoTen)
+
+		delete @SepateCoberturaTentoTen
+		delete top (10) @IdCoberturas
+
 		set @count = @count + 10;
 		END
 ROLLBACK
 
 
-select * from requisicao.CoberturaDependente
