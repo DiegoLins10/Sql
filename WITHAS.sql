@@ -1,3 +1,10 @@
+-- Especifica um conjunto de resultados nomeado temporário, conhecido como uma CTE (expressão de tabela comum).
+-- Ela é derivada de uma consulta simples e definida no escopo de execução de uma única instrução 
+-- SELECT, INSERT, UPDATE, DELETE ou MERGE. Esta cláusula também pode ser usada em uma instrução 
+-- CREATE VIEW como parte da instrução SELECT que a define. Uma expressão de tabela comum pode incluir referências a si mesma. 
+-- É o que chamamos de expressão de tabela comum recursiva.
+
+
 With ClientesAtivos AS
     (
             SELECT Id from Client WHERE IsActive = 1
@@ -46,3 +53,19 @@ AS
     INNER JOIN hierarquia h ON h.id= e.id_supervisor 
 )
 SELECT * FROM hierarquia
+
+-------------------------------------------------------------------------------------------
+-- Define the CTE expression name and column list.
+WITH Sales_CTE (SalesPersonID, SalesOrderID, SalesYear)
+AS
+-- Define the CTE query.
+(
+    SELECT SalesPersonID, SalesOrderID, YEAR(OrderDate) AS SalesYear
+    FROM Sales.SalesOrderHeader
+    WHERE SalesPersonID IS NOT NULL
+)
+-- Define the outer query referencing the CTE name.
+SELECT SalesPersonID, COUNT(SalesOrderID) AS TotalSales, SalesYear
+FROM Sales_CTE
+GROUP BY SalesYear, SalesPersonID
+ORDER BY SalesPersonID, SalesYear;
