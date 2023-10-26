@@ -5,7 +5,8 @@ This query text was retrieved from showplan XML, and may be truncated.
 
 GO  
 
-
+-- VER O EXECUTION PLAN NO SQL SERVER
+-- CRTL + L
 
 -- Create a nonclustered index called IX_ProductVendor_VendorID   
 -- on the Purchasing.ProductVendor table using the BusinessEntityID column.   
